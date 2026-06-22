@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SeatUp — Upgrade de cabine com até 80% off | Assentos Premium para seu voo</title>
+  <meta name="description" content="Já comprou sua passagem? Faça upgrade para assentos Premium com desconto de até 80%. Pagamento rápido via crypto. Upgrade vinculado ao seu localizador em até 2 horas.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✈</text></svg>">
+  <style>
+    #search-result { margin-top: 16px; }
+    .searching-msg {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      padding: 12px;
+    }
+    .fallback-whatsapp {
+      text-align: center;
+      padding: 28px 20px;
+      background: var(--surface, #fff);
+      border: 1px solid var(--border, #e2e8f0);
+      border-radius: 12px;
+      margin-top: 12px;
+    }
+    .fallback-icon { font-size: 42px; margin-bottom: 10px; }
+    .fallback-whatsapp h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: var(--text, #0f172a);
+    }
+    .fallback-whatsapp p {
+      color: var(--text-secondary, #475569);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #25D366;
+      color: #fff;
+      padding: 13px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-whatsapp:hover { background: #1ebe5b; transform: translateY(-1px); }
+    .fallback-sub {
+      color: var(--text-muted, #94a3b8);
+      font-size: 0.78rem;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span>✓ 8.432 upgrades emitidos em 2026</span>
+      <span>✓ Reembolso garantido em 24h</span>
+      <span>✓ Suporte em português</span>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="16" fill="#1a56db"/>
+          <path d="M8 22L16 8L24 22H8Z" fill="white" opacity="0.9"/>
+          <path d="M12 18H20L16 12L12 18Z" fill="#1a56db"/>
+        </svg>
+        <span>SeatUp</span>
+      </a>
+      <div class="nav-links">
+        <a href="#como-funciona">Como Funciona</a>
+        <a href="#companhias">Companhias</a>
+        <a href="#depoimentos">Depoimentos</a>
+        <a href="#faq">Dúvidas</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-inner">
+      <div class="hero-text">
+        <span class="hero-badge">✈ Exclusivo para passageiros com reserva confirmada</span>
+        <h1>Já comprou sua<br>passagem? Faça <span class="hero-highlight">upgrade de cabine</span> com até 80% off</h1>
+        <p class="hero-sub">
+          Assentos Premium, Executiva e Primeira Classe não vendidos são liberados 
+          com desconto máximo para quem já tem voo marcado. Pagamento rápido via crypto.
+        </p>
+        
+        <!-- FORMULÁRIO DE BUSCA -->
+        <div class="search-card" id="busca">
+          <div class="search-card-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a56db" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span>Informe seu voo e veja os upgrades disponíveis</span>
+          </div>
+          <form id="flight-search" onsubmit="return buscarVoo(event)">
+            <div class="search-fields">
+              <div class="input-group">
+                <label>Número do Voo</label>
+                <input type="text" id="flight-number" placeholder="Ex: LA3450" required autocomplete="off">
+              </div>
+              <div class="input-group">
+                <label>Data do Voo</label>
+                <!-- FIX 1: Campo de data no formato brasileiro DD/MM/AAAA -->
+                <input
+                  type="text"
+                  id="flight-date"
+                  placeholder="DD/MM/AAAA"
+                  pattern="\d{2}/\d{2}/\d{4}"
+                  maxlength="10"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  required
+                >
+              </div>
+              <div class="input-group">
+                <label>Sobrenome</label>
+                <input type="text" id="passenger-name" placeholder="Ex: Silva" required autocomplete="off">
+              </div>
+              <button type="submit" class="btn-search">
+                BUSCAR UPGRADE
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </form>
+          <div id="search-result"></div>
+          <p class="search-disclaimer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12l2 2 4-4"/></svg>
+            Seus dados não são armazenados. Conexão criptografada SSL 256-bit.
+          </p>
+        </div>
+
+        <div class="hero-trust">
+          <div class="hero-trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            Reembolso garantido
+          </div>
+          <div class="hero-trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            Upgrade em até 2h
+          </div>
+          <div class="hero-trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+            Nota 4.7 no TrustPilot
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <!-- FIX 2: Preços do card preview reduzidos em 45% -->
+        <div class="hero-card-preview">
+          <div class="preview-badge">MAIS POPULAR</div>
+          <div class="preview-seat">💺</div>
+          <div class="preview-label">Assento Premium</div>
+          <div class="preview-old-price">De R$ 374</div>
+          <div class="preview-new-price">Por <strong>R$ 81</strong></div>
+          <div class="preview-discount">78% OFF</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPANHIAS -->
+  <section class="airlines-section" id="companhias">
+    <div class="section-inner">
+      <p class="section-overline">COMPANHIAS PARTICIPANTES</p>
+      <h2>Assentos premium disponíveis nas principais companhias aéreas</h2>
+      <div class="airlines-grid">
+        <div class="airline-card">
+          <div class="airline-logo-box latam-bg">
+            <span class="airline-name-logo">LATAM</span>
+          </div>
+          <span class="airline-label">LATAM Airlines</span>
+        </div>
+        <div class="airline-card">
+          <div class="airline-logo-box gol-bg">
+            <span class="airline-name-logo">GOL</span>
+          </div>
+          <span class="airline-label">Gol Linhas Aéreas</span>
+        </div>
+        <div class="airline-card">
+          <div class="airline-logo-box azul-bg">
+            <span class="airline-name-logo">AZUL</span>
+          </div>
+          <span class="airline-label">Azul Linhas Aéreas</span>
+        </div>
+        <div class="airline-card">
+          <div class="airline-logo-box american-bg">
+            <span class="airline-name-logo">American</span>
+          </div>
+          <span class="airline-label">American Airlines</span>
+        </div>
+        <div class="airline-card">
+          <div class="airline-logo-box united-bg">
+            <span class="airline-name-logo">UNITED</span>
+          </div>
+          <span class="airline-label">United Airlines</span>
+        </div>
+      </div>
+      <p class="airlines-note">
+        Os assentos são adquiridos via <strong>ATPCO</strong> e <strong>Amadeus</strong> — 
+        marketplaces oficiais de redistribuição de inventário aéreo global.
+      </p>
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA -->
+  <section class="how-section" id="como-funciona">
+    <div class="section-inner">
+      <p class="section-overline">EM 3 PASSOS</p>
+      <h2>Como funciona o upgrade</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-icon">1</div>
+          <h4>Informe seu voo</h4>
+          <p>Digite o número do voo, data e sobrenome. Nosso sistema consulta em tempo real os assentos premium disponíveis.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">2</div>
+          <h4>Escolha o upgrade</h4>
+          <p>Veja as opções de assento com até 80% de desconto. Preços transparentes em Reais e crypto.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-icon">3</div>
+          <h4>Pague em crypto</h4>
+          <p>Pagamento rápido via ETH ou USDT. O upgrade é vinculado ao seu localizador automaticamente em até 2 horas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÉTRICAS -->
+  <section class="metrics-section">
+    <div class="section-inner">
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-value">8.432</span>
+          <span class="metric-desc">Upgrades emitidos<br>em 2026</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">94%</span>
+          <span class="metric-desc">Taxa de<br>satisfação</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">2h</span>
+          <span class="metric-desc">Prazo médio de<br>confirmação</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-value">24h</span>
+          <span class="metric-desc">Garantia de<br>reembolso</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPOIMENTOS -->
+  <!-- FIX 2: Preços dos depoimentos reduzidos em 45% -->
+  <section class="testimonials-section" id="depoimentos">
+    <div class="section-inner">
+      <p class="section-overline">DEPOIMENTOS</p>
+      <h2>Quem já usou recomenda</h2>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Fiquei desconfiada, mas chegando no aeroporto meu assento era Premium de verdade. SP → Miami por R$ 81. Não viajo mais sem verificar."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MC</div>
+            <div>
+              <p class="testimonial-name">Mariana C.</p>
+              <p class="testimonial-info">Voo LATAM • GRU → MIA</p>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Paguei 0.0045 ETH pelo upgrade Premium Economy. Achei que era golpe, mas deu super certo. Indiquei pro grupo de viagens todo."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">RD</div>
+            <div>
+              <p class="testimonial-name">Rafael D.</p>
+              <p class="testimonial-info">Voo LATAM • GRU → SCL</p>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Sempre paguei R$ 330+ no balcão por upgrade. Dessa vez paguei R$ 49. A atendente confirmou o assento na hora. Inacreditável."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">BL</div>
+            <div>
+              <p class="testimonial-name">Beatriz L.</p>
+              <p class="testimonial-info">Voo Gol • CGH → SDU</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section" id="faq">
+    <div class="section-inner">
+      <p class="section-overline">DÚVIDAS FREQUENTES</p>
+      <h2>Tudo o que você precisa saber</h2>
+      <div class="faq-grid">
+        <details open>
+          <summary>O upgrade realmente funciona? Como vocês garantem?</summary>
+          <p>Sim. Após a confirmação do pagamento na blockchain, vinculamos o upgrade ao seu localizador diretamente nos sistemas das companhias aéreas via ATPCO e Amadeus. Se por qualquer motivo o upgrade não for confirmado no check-in, devolvemos 100% do valor em até 24 horas.</p>
+        </details>
+        <details>
+          <summary>Por que os preços são tão abaixo do mercado?</summary>
+          <p>As companhias aéreas preferem vender assentos premium não vendidos abaixo do custo a voar com eles vazios. Nós compramos esses lotes no mercado secundário de aviação e repassamos o desconto integralmente. Como operamos via crypto, eliminamos também taxas bancárias e spread cambial.</p>
+        </details>
+        <details>
+          <summary>Por que só aceitam pagamento em crypto?</summary>
+          <p>Operamos em 14 países simultaneamente. Crypto (ETH e USDT) elimina taxas transfronteiriças, IOF, spread de câmbio e permite liquidação instantânea — a economia é repassada integralmente pra você no preço final.</p>
+        </details>
+        <details>
+          <summary>Meus dados de voo ficam armazenados?</summary>
+          <p>Não. Seu número de voo e sobrenome são usados exclusivamente para consultar upgrades disponíveis no momento da busca. Nenhuma informação é armazenada em nossos servidores. Toda conexão é criptografada com SSL 256-bit.</p>
+        </details>
+        <details>
+          <summary>E se eu pagar e o upgrade não for confirmado?</summary>
+          <p>Você recebe 100% do valor de volta na mesma carteira de origem em até 24 horas. Sem burocracia, sem perguntas. Essa é a nossa garantia.</p>
+        </details>
+        <details>
+          <summary>Preciso fazer alguma coisa depois do pagamento?</summary>
+          <p>Nada. Após as confirmações na blockchain (geralmente 2 a 6), o upgrade é vinculado automaticamente ao seu localizador. No check-in seu assento já estará atualizado. Você recebe a confirmação por email em até 2 horas.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta-section">
+    <div class="section-inner">
+      <h2>Já tem voo marcado?</h2>
+      <p>Informe os dados do seu voo e veja na hora os upgrades disponíveis com até 80% de desconto.</p>
+      <a href="#busca" class="btn-cta">VER MEU UPGRADE AGORA →</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="logo footer-logo">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="16" fill="#1a56db"/>
+            <path d="M8 22L16 8L24 22H8Z" fill="white" opacity="0.9"/>
+            <path d="M12 18H20L16 12L12 18Z" fill="#1a56db"/>
+          </svg>
+          <span>SeatUp</span>
+        </div>
+        <p>Marketplace independente de upgrade de cabine. Assentos premium não vendidos com desconto de até 80% para passageiros com reserva confirmada.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h5>Serviços</h5>
+          <a href="#como-funciona">Como Funciona</a>
+          <a href="#companhias">Companhias</a>
+          <a href="#faq">Dúvidas</a>
+        </div>
+        <div class="footer-col">
+          <h5>Institucional</h5>
+          <a href="#">Termos de Uso</a>
+          <a href="#">Privacidade</a>
+          <a href="#">Contato</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 SeatUp. Todos os direitos reservados. SeatUp não é afiliada diretamente às companhias aéreas mencionadas. Opera como marketplace independente de liquidação de inventário aéreo via ATPCO e Amadeus.</p>
+    </div>
+  </footer>
+  <div class="social-toast-container" id="social-toasts"></div>
+  <script src="script.js"></script>
+
+  <!-- Contador via Netlify Blobs -->
+<span class="contador">.......</span>
+<script>
+fetch("/.netlify/functions/contador?pagina=" + encodeURIComponent(location.pathname))
+  .then(r => r.text())
+  .then(n => document.querySelector(".contador").textContent = n);
+</script>
+</body>
+</html>

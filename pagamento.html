@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SeatUp — Finalizar Pagamento</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* Estilos extras exclusivos do checkout */
+    .checkout-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+    .cs-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .cs-step.done { color: var(--success); }
+    .cs-step.active { color: var(--primary); }
+    .cs-bubble {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+    .cs-step.done .cs-bubble { background: var(--success); color: #fff; }
+    .cs-step.active .cs-bubble { background: var(--primary); color: #fff; }
+    .cs-line {
+      flex: 1;
+      height: 2px;
+      background: var(--border);
+      max-width: 48px;
+    }
+    .cs-line.done { background: var(--success); }
+
+    .upgrade-summary-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--primary-light);
+      border: 1px solid rgba(26,86,219,0.15);
+      border-radius: var(--radius);
+      padding: 14px 20px;
+    }
+    .upgrade-summary-strip .us-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .upgrade-summary-strip .us-value {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 1rem;
+    }
+    .upgrade-summary-strip .us-right {
+      text-align: right;
+    }
+
+    .qr-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      background: var(--bg);
+      padding: 4px 12px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .crypto-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f0f4ff;
+      border: 1px solid rgba(26,86,219,0.15);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .pay-steps-card h3 {
+      font-size: 1rem;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pay-step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .pay-step-item:last-child { border-bottom: none; }
+    .pay-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.72rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .security-badges {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .sec-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .btn-verify-full {
+      width: 100%;
+      padding: 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+    }
+    .btn-verify-full:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(26,86,219,0.25);
+    }
+
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+    }
+    .confirm-overlay.show { display: flex; }
+    .confirm-box {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: var(--shadow-xl);
+      animation: fadeScaleIn 0.3s ease;
+    }
+    @keyframes fadeScaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to   { opacity: 1; transform: scale(1);    }
+    }
+    .confirm-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--accent-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      margin: 0 auto 16px;
+    }
+    .confirm-box h3 { font-size: 1.2rem; margin-bottom: 8px; }
+    .confirm-box p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; line-height: 1.6; }
+    .confirm-actions { display: flex; gap: 10px; }
+    .btn-confirm-yes {
+      flex: 1;
+      padding: 12px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .btn-confirm-yes:hover { background: var(--primary-dark); }
+    .btn-confirm-no {
+      flex: 1;
+      padding: 12px;
+      background: var(--bg);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .processing-card {
+      display: none;
+      background: var(--success-light);
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      text-align: center;
+    }
+    .processing-card.show { display: block; }
+    .proc-icon {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+    }
+    .proc-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--success);
+      margin-bottom: 8px;
+    }
+    .proc-sub {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+    .proc-steps { text-align: left; margin-bottom: 16px; }
+    .proc-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      font-size: 0.88rem;
+      border-bottom: 1px solid rgba(16,185,129,0.15);
+    }
+    .proc-step:last-child { border-bottom: none; }
+    .proc-step.ok    { color: var(--success); }
+    .proc-step.spin  { color: var(--accent);  font-weight: 600; }
+    .proc-step.wait  { color: var(--text-muted); }
+    .spinner-sm {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--accent);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .proc-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.6);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+    }
+
+    .flight-mini {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+    .flight-mini strong { color: var(--text); }
+    .flight-mini-arrow { color: var(--text-muted); }
+
+    .payment-page { padding: 28px 0 60px; }
+    .payment-container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .payment-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .payment-card h3 {
+      font-size: 1rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .payment-summary-rows { display: flex; flex-direction: column; gap: 10px; }
+    .ps-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .ps-row strong { color: var(--text); font-weight: 600; }
+    .ps-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 6px 0;
+    }
+    .ps-total { font-size: 1rem; color: var(--text); }
+    .ps-crypto { font-size: 0.85rem; color: var(--primary); }
+    .timer-alert {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #9a3412;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      text-align: center;
+      font-size: 0.88rem;
+      margin-bottom: 20px;
+    }
+    .qr-card { text-align: center; }
+    .qr-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .qr-img {
+      max-width: 220px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .qr-or {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-bottom: 14px;
+    }
+    .wallet-address-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px;
+      margin-bottom: 16px;
+    }
+    .wallet-address-row code {
+      flex: 1;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 8px;
+    }
+    .btn-copy-addr {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-copy-addr:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .qr-wallets {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .qr-wallets span {
+      background: var(--bg);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+    .guarantee-strip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--success-light);
+      border: 1px solid rgba(16,185,129,0.2);
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+    .guarantee-strip strong { color: var(--success); }
+  </style>
+</head>
+<body>
+
+  <!-- POPUP CONTAINER -->
+  <div id="social-toasts" class="social-toast-container"></div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span>🔒 Pagamento 100% seguro e criptografado</span>
+      <span>✓ Reembolso garantido em 24h</span>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="16" fill="#1a56db"/>
+          <path d="M8 22L16 8L24 22H8Z" fill="white" opacity="0.9"/>
+          <path d="M12 18H20L16 12L12 18Z" fill="#1a56db"/>
+        </svg>
+        <span>SeatUp</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html#como-funciona">Como Funciona</a>
+        <a href="index.html#faq">Dúvidas</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTEÚDO -->
+  <section class="payment-page">
+    <div class="payment-container">
+
+      <!-- PASSOS -->
+      <div class="checkout-steps">
+        <div class="cs-step done">
+          <div class="cs-bubble">✓</div>
+          Voo
+        </div>
+        <div class="cs-line done"></div>
+        <div class="cs-step done">
+          <div class="cs-bubble">✓</div>
+          Upgrade
+        </div>
+        <div class="cs-line done"></div>
+        <div class="cs-step active">
+          <div class="cs-bubble">3</div>
+          Pagamento
+        </div>
+      </div>
+
+      <!-- RESUMO DO UPGRADE -->
+      <div class="upgrade-summary-strip">
+        <div>
+          <div class="us-label">Upgrade selecionado</div>
+          <div class="us-value" id="summary-upgrade-name">Assento Premium</div>
+          <div class="flight-mini" style="margin-top:4px;">
+            <strong id="summary-flight">---</strong>
+            <span class="flight-mini-arrow">→</span>
+            <span id="summary-route">---</span>
+            <span>·</span>
+            <span id="summary-date">---</span>
+          </div>
+        </div>
+        <div class="us-right">
+          <div class="us-label">Total</div>
+          <div class="us-value" id="summary-price-top">R$ 81</div>
+        </div>
+      </div>
+
+      <!-- TIMER -->
+      <div class="timer-alert">
+        ⏱ Sua reserva expira em <strong id="pay-countdown">09:59</strong> — conclua o pagamento para garantir o assento.
+      </div>
+
+      <!-- RESUMO FINANCEIRO -->
+      <div class="payment-card">
+        <h3>Resumo do pedido</h3>
+        <div class="payment-summary-rows">
+          <div class="ps-row">
+            <span>Upgrade selecionado</span>
+            <strong id="ps-upgrade-name">Assento Premium</strong>
+          </div>
+          <div class="ps-row">
+            <span>Voo</span>
+            <strong id="ps-flight">---</strong>
+          </div>
+          <div class="ps-row">
+            <span>Data</span>
+            <strong id="ps-date">---</strong>
+          </div>
+          <div class="ps-row">
+            <span>Preço original</span>
+            <strong id="ps-original">R$ 147</strong>
+          </div>
+          <div class="ps-row" style="color: var(--success);">
+            <span>Desconto SeatUp</span>
+            <strong id="ps-discount">− R$ 66</strong>
+          </div>
+          <div class="ps-divider"></div>
+          <div class="ps-row ps-total">
+            <span><strong>Total a pagar</strong></span>
+            <strong id="ps-total-price">R$ 81</strong>
+          </div>
+          <div class="ps-row ps-crypto">
+            <span>Equivalente em cripto</span>
+            <strong id="ps-eth">0.0045 ETH</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR CODE -->
+      <div class="payment-card qr-card">
+        <h3>Pague via criptomoeda</h3>
+
+        <div class="crypto-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Somente pagamento via crypto · Confirmação em minutos
+        </div>
+
+        <div class="qr-label">Escaneie o QR Code com sua carteira</div>
+
+        <div class="qr-wrapper">
+          <img src="qrcoded.jpeg" alt="QR Code de pagamento" class="qr-img" id="qr-img"
+               onerror="this.style.display='none'; document.getElementById('qr-placeholder').style.display='flex';">
+
+          <div id="qr-placeholder" style="
+            display: none;
+            width: 200px;
+            height: 200px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            text-align: center;
+            padding: 16px;
+          ">
+          </div>
+        </div>
+
+        <div class="qr-wallets">
+          <span>MetaMask</span>
+          <span>Trust Wallet</span>
+          <span>Coinbase</span>
+          <span>Binance</span>
+          <span>Outros</span>
+        </div>
+      </div>
+
+      <!-- COMO PAGAR -->
+      <div class="payment-card pay-steps-card">
+        <h3>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Como realizar o pagamento
+        </h3>
+        <div class="pay-step-item">
+          <div class="pay-step-num">1</div>
+          <div>Abra sua carteira de criptomoedas preferida (MetaMask, Trust Wallet, etc.)</div>
+        </div>
+        <div class="pay-step-item">
+          <div class="pay-step-num">2</div>
+          <div>Escaneie o QR Code acima <strong>ou</strong> copie o endereço da carteira</div>
+        </div>
+        <div class="pay-step-item">
+          <div class="pay-step-num">3</div>
+          <div>Envie exatamente o valor em ETH indicado: <strong id="step-eth">0.0045 ETH</strong></div>
+        </div>
+        <div class="pay-step-item">
+          <div class="pay-step-num">4</div>
+          <div>Clique em <strong>"Confirmar Pagamento"</strong> após realizar a transferência</div>
+        </div>
+      </div>
+
+      <!-- GARANTIA -->
+      <div class="guarantee-strip" style="margin-bottom: 20px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span><strong>Garantia SeatUp:</strong> Se o upgrade não for confirmado no check-in, devolvemos 100% em até 24h.</span>
+      </div>
+
+      <!-- BOTÃO CONFIRMAR -->
+      <button class="btn-verify-full" onclick="abrirConfirmacao()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        Já realizei o pagamento — Confirmar
+      </button>
+
+      <!-- SELOS DE SEGURANÇA -->
+      <div class="security-badges">
+        <div class="sec-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Pagamento seguro
+        </div>
+        <div class="sec-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          Reembolso em 24h garantido
+        </div>
+        <div class="sec-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          Confirmação em minutos
+        </div>
+      </div>
+
+      <!-- CARD PÓS-PAGAMENTO -->
+      <div class="processing-card" id="processing-card">
+        <div class="proc-icon">🎉</div>
+        <div class="proc-title">Pagamento em verificação!</div>
+        <div class="proc-sub">
+          Estamos confirmando sua transação na blockchain. Você receberá a confirmação do upgrade em até <strong>15 minutos</strong>.
+        </div>
+        <div class="proc-steps">
+          <div class="proc-step ok">
+            <span>✓</span> Pagamento recebido
+          </div>
+          <div class="proc-step spin">
+            <span class="spinner-sm"></span> Verificando na blockchain...
+          </div>
+          <div class="proc-step wait">
+            <span>○</span> Emitindo confirmação do upgrade
+          </div>
+          <div class="proc-step wait">
+            <span>○</span> Enviando e-ticket para seu e-mail
+          </div>
+        </div>
+        <div class="proc-note">
+          📧 Guarde o comprovante da sua carteira. Em caso de dúvidas, acesse nosso suporte com o número do voo: <strong id="proc-flight-num">---</strong>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>© 2026 SeatUp. Todos os direitos reservados. · <a href="#" style="color:inherit;">Termos</a> · <a href="#" style="color:inherit;">Privacidade</a></p>
+    </div>
+  </footer>
+
+  <!-- MODAL DE CONFIRMAÇÃO -->
+  <div class="confirm-overlay" id="confirm-overlay">
+    <div class="confirm-box">
+      <div class="confirm-icon">⚠️</div>
+      <h3>Confirmar pagamento</h3>
+      <p>
+        Você confirma que enviou <strong id="modal-eth">0.0045 ETH</strong> para o endereço indicado?<br><br>
+        Só confirme após concluir a transferência na sua carteira.
+      </p>
+      <div class="confirm-actions">
+        <button class="btn-confirm-no" onclick="fecharConfirmacao()">Voltar</button>
+        <button class="btn-confirm-yes" onclick="confirmarPagamento()">Sim, já paguei</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script>
+    // ========== CHECKOUT — LÓGICA CORRIGIDA ==========
+
+    const params = new URLSearchParams(window.location.search);
+    const raw    = sessionStorage.getItem('seatup_flight');
+    const stored = raw ? JSON.parse(raw) : {};
+
+    // URL do Google Apps Script que envia a notificação pro Telegram (token escondido no servidor)
+    const SEATUP_BOT_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxu_n5-hLj7ySCtiTQVSxIWs89_tyGeYegXoIZNR1a6rfwP69Z1-uP8UMjZ8GjuGSNE/exec';
+
+    // --- Dados do voo: URL params têm prioridade sobre sessionStorage ---
+    const flightNum = params.get('flight') || stored.flight || '---';
+    const fromRaw   = params.get('from')   || stored.from   || '---';
+    const toRaw     = params.get('to')     || stored.to     || '---';
+    const fromCode  = params.get('fromCode') || stored.fromCode || '';
+    const toCode    = params.get('toCode')   || stored.toCode   || '';
+    const depTime   = params.get('depTime')  || stored.depTime  || '---';
+    const arrTime   = params.get('arrTime')  || stored.arrTime  || '---';
+    const airline   = params.get('airline')  || stored.airline  || '---';
+
+    function limparCidade(str) {
+      if (!str || str === '---') return '---';
+      return str.split('(')[0].trim();
+    }
+
+    const cidadeOrigem  = limparCidade(fromRaw);
+    const cidadeDestino = limparCidade(toRaw);
+    const routeStr = (cidadeOrigem === '---' && cidadeDestino === '---')
+      ? '---'
+      : `${cidadeOrigem}${fromCode ? ' (' + fromCode + ')' : ''} → ${cidadeDestino}${toCode ? ' (' + toCode + ')' : ''}`;
+
+    let dateStr = params.get('date') || stored.date || '';
+    if (!dateStr && (params.get('dateRaw') || stored.dateRaw)) {
+      dateStr = formatarData(params.get('dateRaw') || stored.dateRaw);
+    }
+    if (!dateStr) dateStr = '---';
+
+    // --- Dados do upgrade ---
+    const upgradeName = params.get('upgrade') || localStorage.getItem('seatup_upgrade') || 'Assento Premium';
+    const priceVal    = params.get('price')   || localStorage.getItem('seatup_price')   || '81';
+    const ethVal      = params.get('eth')     || localStorage.getItem('seatup_eth')     || '0.0045';
+
+    // Preços originais reais (antes do desconto de 45%)
+    const originalPrices = {
+      'Premium Economy': 89,
+      'Assento Premium': 147,
+      'Primeira Fileira': 197
+    };
+    const originalPrice = originalPrices[upgradeName] || 147;
+    const discount      = originalPrice - parseInt(priceVal);
+
+    // --- Preenche a página ---
+    document.getElementById('summary-upgrade-name').textContent = upgradeName;
+    document.getElementById('summary-flight').textContent       = flightNum;
+    document.getElementById('summary-route').textContent        = routeStr;
+    document.getElementById('summary-date').textContent         = dateStr;
+    document.getElementById('summary-price-top').textContent    = `R$ ${priceVal}`;
+
+    document.getElementById('ps-upgrade-name').textContent = upgradeName;
+    document.getElementById('ps-flight').textContent       = flightNum;
+    document.getElementById('ps-date').textContent         = dateStr;
+    document.getElementById('ps-original').textContent     = `R$ ${originalPrice}`;
+    document.getElementById('ps-discount').textContent     = `− R$ ${discount}`;
+    document.getElementById('ps-total-price').textContent  = `R$ ${priceVal}`;
+    document.getElementById('ps-eth').textContent          = `${ethVal} ETH`;
+
+    document.getElementById('step-eth').textContent        = `${ethVal} ETH`;
+    document.getElementById('modal-eth').textContent       = `${ethVal} ETH`;
+    document.getElementById('proc-flight-num').textContent = flightNum;
+
+    // ========== COUNTDOWN ==========
+    let segundos = 9 * 60 + 59;
+    const countdownEl = document.getElementById('pay-countdown');
+
+    function atualizarCountdown() {
+      if (segundos <= 0) {
+        countdownEl.textContent = '00:00';
+        clearInterval(timerInterval);
+        return;
+      }
+      const m = String(Math.floor(segundos / 60)).padStart(2, '0');
+      const s = String(segundos % 60).padStart(2, '0');
+      countdownEl.textContent = `${m}:${s}`;
+      segundos--;
+    }
+    atualizarCountdown();
+    const timerInterval = setInterval(atualizarCountdown, 1000);
+
+    // ========== COPIAR ENDEREÇO ==========
+    function copiarEndereco() {
+      const addr = document.getElementById('wallet-address').textContent;
+      navigator.clipboard.writeText(addr).then(() => {
+        const btn = document.querySelector('.btn-copy-addr');
+        btn.textContent = 'Copiado!';
+        btn.style.background = 'var(--success)';
+        btn.style.color = '#fff';
+        btn.style.borderColor = 'var(--success)';
+        setTimeout(() => {
+          btn.textContent = 'Copiar';
+          btn.style.background = '';
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 2500);
+      });
+    }
+
+    // ========== MODAL ==========
+    function abrirConfirmacao() {
+      document.getElementById('confirm-overlay').classList.add('show');
+    }
+    function fecharConfirmacao() {
+      document.getElementById('confirm-overlay').classList.remove('show');
+    }
+    function confirmarPagamento() {
+      fecharConfirmacao();
+      document.querySelector('.btn-verify-full').style.display = 'none';
+      document.querySelector('.security-badges').style.display = 'none';
+      document.getElementById('processing-card').classList.add('show');
+      document.getElementById('processing-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Notificação Telegram + contador pago via Google Apps Script (token escondido no servidor)
+      fetch(SEATUP_BOT_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payment',
+          flight: flightNum,
+          route: routeStr,
+          date: dateStr,
+          time: depTime,
+          upgrade: upgradeName,
+          price: priceVal,
+          eth: ethVal
+        })
+      }).catch(function(){});
+    }
+  </script>
+
+  <!-- Contador via blobs-->
+<script>
+fetch("/.netlify/functions/contador?pagina=" + encodeURIComponent(location.pathname))
+  .then(r => r.text())
+  .then(n => document.querySelector(".contador").textContent = n);
+</script>
+</body>
+</html>

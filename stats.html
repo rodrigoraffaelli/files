@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SeatUp • Stats</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0f0f1a;
+      color: #e0e0e0;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 2rem;
+    }
+    .stats-card {
+      background: #1a1a2e; border: 1px solid #2a2a4a;
+      border-radius: 16px; padding: 2.5rem;
+      max-width: 520px; width: 100%;
+      box-shadow: 0 0 40px rgba(100, 100, 255, 0.08);
+    }
+    h1 {
+      font-size: 1.6rem; margin-bottom: 0.3rem;
+      background: linear-gradient(135deg, #7c5cfc, #4ec9ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sub { color: #888; font-size: 0.85rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .refresh {
+      color: #7c5cfc; font-size: 0.8rem; cursor: pointer;
+      text-decoration: underline; background: none; border: none;
+    }
+    .stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.9rem 0; border-bottom: 1px solid #2a2a4a;
+    }
+    .stat-row:last-of-type { border-bottom: none; }
+    .stat-label { font-size: 0.95rem; color: #bbb; }
+    .stat-value {
+      font-size: 1.3rem; font-weight: 700;
+      background: linear-gradient(135deg, #7c5cfc, #4ec9ff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .total-row {
+      background: rgba(124,92,252,0.08); border-radius: 8px;
+      padding: 0.9rem 1rem !important; margin-top: 0.5rem;
+    }
+    .loading { text-align: center; color: #666; padding: 2rem; }
+    .footer {
+      margin-top: 1rem; font-size: 0.7rem; color: #444; text-align: center;
+    }
+    .error { color: #ff6b6b; font-size: 0.8rem; text-align: center; padding: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="stats-card">
+    <h1>SeatUp Stats</h1>
+    <p class="sub">Métricas em tempo real • <button class="refresh" onclick="location.reload()">atualizar</button></p>
+    <div id="stats-container"><p class="loading">Carregando...</p></div>
+    <p class="footer">Dados via Google Apps Script PropertiesService</p>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDA7QTYHH_e7Gi75Pm_wmgneL-G8ExFfowLqHnCxJ8Mcnq7v3iGzU7uUO_mXKyWpw/exec';
+
+    async function carregarStats() {
+      var container = document.getElementById('stats-container');
+
+      try {
+        var resp = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'get_counts' })
+        });
+        var data = await resp.json();
+
+        if (!data.ok || !data.counts) {
+          throw new Error('Resposta inválida do servidor');
+        }
+
+        var counts = data.counts;
+        var total = counts.index + counts.resultado + counts.pagamento;
+
+        var html =
+          '<div class="stat-row">' +
+            '<span class="stat-label">Busca (index)</span>' +
+            '<span class="stat-value">' + counts.index.toLocaleString('pt-BR') + '</span>' +
+          '</div>' +
+          '<div class="stat-row">' +
+            '<span class="stat-label">Resultados</span>' +
+            '<span class="stat-value">' + counts.resultado.toLocaleString('pt-BR') + '</span>' +
+          '</div>' +
+          '<div class="stat-row">' +
+            '<span class="stat-label">Pagamento</span>' +
+            '<span class="stat-value">' + counts.pagamento.toLocaleString('pt-BR') + '</span>' +
+          '</div>' +
+          '<div class="stat-row">' +
+            '<span class="stat-label">Pagamentos confirmados</span>' +
+            '<span class="stat-value">' + counts.pago.toLocaleString('pt-BR') + '</span>' +
+          '</div>' +
+          '<div class="stat-row total-row">' +
+            '<span class="stat-label" style="font-weight:700">TOTAL DE ACESSOS</span>' +
+            '<span class="stat-value">' + total.toLocaleString('pt-BR') + '</span>' +
+          '</div>';
+
+        container.innerHTML = html;
+      } catch(e) {
+        container.innerHTML = '<p class="error">Erro ao carregar métricas.<br>Tente novamente.</p>';
+        console.error(e);
+      }
+    }
+
+    carregarStats();
+  </script>
+</body>
+</html>

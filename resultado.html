@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SeatUp — Upgrades disponíveis para seu voo</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <span>✓ 8.432 upgrades emitidos em 2026</span>
+      <span>✓ Reembolso garantido em 24h</span>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="16" r="16" fill="#1a56db"/>
+          <path d="M8 22L16 8L24 22H8Z" fill="white" opacity="0.9"/>
+          <path d="M12 18H20L16 12L12 18Z" fill="#1a56db"/>
+        </svg>
+        <span>SeatUp</span>
+      </a>
+      <div class="nav-links">
+        <a href="/#como-funciona">Como Funciona</a>
+        <a href="/#faq">Dúvidas</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="result-page">
+    <div class="result-container">
+
+      <!-- STATUS: VOO ENCONTRADO -->
+      <div class="result-status">
+        <div class="result-status-icon">✓</div>
+        <div>
+          <h2>Voo encontrado com sucesso</h2>
+          <p>Upgrades disponíveis para este voo. Oferta válida por tempo limitado.</p>
+        </div>
+      </div>
+
+      <!-- CARD DO VOO (preenchido dinamicamente) -->
+      <div class="flight-detail-card" id="flight-details">
+        <div class="flight-detail-header">
+          <div class="airline-tag" id="airline-badge">
+            <span class="airline-dot" id="airline-dot"></span>
+            <span id="result-airline">LATAM</span>
+          </div>
+          <span class="flight-number-big" id="result-flight-code">LA3450</span>
+        </div>
+
+        <div class="flight-route-visual">
+          <div class="route-point">
+            <span class="route-city" id="result-from">São Paulo (GRU)</span>
+            <span class="route-time" id="result-dep-time">08:45</span>
+          </div>
+          <div class="route-line">
+            <div class="route-plane">✈</div>
+          </div>
+          <div class="route-point">
+            <span class="route-city" id="result-to">Santiago (SCL)</span>
+            <span class="route-time" id="result-arr-time">11:20</span>
+          </div>
+        </div>
+
+        <div class="flight-detail-meta">
+          <div class="meta-item">
+            <span class="meta-label">Data</span>
+            <span class="meta-value" id="result-date">14 de Julho de 2026</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Terminal</span>
+            <span class="meta-value" id="result-terminal">Terminal 3</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Passageiro</span>
+            <span class="meta-value" id="result-passenger">SILVA</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Status</span>
+            <span class="meta-value status-confirmed">CONFIRMADO</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ALERTA DE URGÊNCIA -->
+      <div class="urgency-alert">
+        <span>⏱ Oferta válida por <strong id="countdown">09:59</strong> minutos.</span>
+        <span>Após esse período, os assentos voltam ao preço normal de mercado.</span>
+      </div>
+
+      <!-- OPÇÕES DE UPGRADE -->
+      <!-- FIX 2: Todos os preços reduzidos em 45% -->
+      <h3 class="upgrade-title">Escolha seu upgrade</h3>
+
+      <div class="upgrade-options">
+        <!-- Premium Economy -->
+        <div class="upgrade-option">
+          <div class="upgrade-option-top">
+            <div class="upgrade-option-info">
+              <h4>Premium Economy</h4>
+              <ul>
+                <li>Espaço extra para pernas</li>
+                <li>Embarque prioritário</li>
+                <li>Kit amenities</li>
+              </ul>
+            </div>
+            <div class="upgrade-option-seats">3 disponíveis</div>
+          </div>
+          <div class="upgrade-option-bottom">
+            <div class="upgrade-pricing">
+              <span class="price-old">R$ 231</span>
+              <span class="price-new">R$ 49</span>
+              <span class="price-crypto">0.0027 ETH</span>
+            </div>
+            <a href="pagamento.html?upgrade=Premium+Economy&price=49&eth=0.0027" class="btn-upgrade">SELECIONAR →</a>
+          </div>
+        </div>
+
+        <!-- Assento Premium (popular) -->
+        <div class="upgrade-option popular">
+          <div class="popular-tag">MAIS POPULAR</div>
+          <div class="upgrade-option-top">
+            <div class="upgrade-option-info">
+              <h4>Assento Premium</h4>
+              <ul>
+                <li>Reclinável 180°</li>
+                <li>Refeição gourmet</li>
+                <li>Embarque prioritário</li>
+                <li>Kit amenities premium</li>
+                <li>Tela 15" com entretenimento</li>
+              </ul>
+            </div>
+            <div class="upgrade-option-seats low">2 disponíveis</div>
+          </div>
+          <div class="upgrade-option-bottom">
+            <div class="upgrade-pricing">
+              <span class="price-old">R$ 374</span>
+              <span class="price-new">R$ 81</span>
+              <span class="price-crypto">0.0045 ETH</span>
+            </div>
+            <a href="pagamento.html?upgrade=Assento+Premium&price=81&eth=0.0045" class="btn-upgrade btn-upgrade-popular">SELECIONAR →</a>
+          </div>
+        </div>
+
+        <!-- Primeira Fileira -->
+        <div class="upgrade-option">
+          <div class="upgrade-option-top">
+            <div class="upgrade-option-info">
+              <h4>Primeira Fileira</h4>
+              <ul>
+                <li>Máximo espaço</li>
+                <li>Refeição gourmet</li>
+                <li>Serviço exclusivo</li>
+                <li>Kit amenities luxo</li>
+                <li>Desembarque prioritário</li>
+              </ul>
+            </div>
+            <div class="upgrade-option-seats low">1 disponível</div>
+          </div>
+          <div class="upgrade-option-bottom">
+            <div class="upgrade-pricing">
+              <span class="price-old">R$ 523</span>
+              <span class="price-new">R$ 109</span>
+              <span class="price-crypto">0.0061 ETH</span>
+            </div>
+            <a href="pagamento.html?upgrade=Primeira+Fileira&price=109&eth=0.0061" class="btn-upgrade">SELECIONAR →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- GARANTIA -->
+      <div class="guarantee-strip">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span><strong>Garantia SeatUp:</strong> Se o upgrade não for confirmado no check-in, devolvemos 100% do valor em até 24h. Sem perguntas.</span>
+      </div>
+
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-bottom">
+      <p>© 2026 SeatUp. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+
+  <!-- Contador via blobs -->
+<script>
+fetch("/.netlify/functions/contador?pagina=" + encodeURIComponent(location.pathname))
+  .then(r => r.text())
+  .then(n => document.querySelector(".contador").textContent = n);
+</script>
+</body>
+</html>
