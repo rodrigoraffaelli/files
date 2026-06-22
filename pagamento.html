@@ -792,6 +792,7 @@
       document.getElementById('confirm-overlay').classList.remove('show');
     }
     function confirmarPagamento() {
+      fetch('/.netlify/functions/contador?modo=clique&botao=sim_ja_paguei');
       fecharConfirmacao();
       document.querySelector('.btn-verify-full').style.display = 'none';
       document.querySelector('.security-badges').style.display = 'none';
