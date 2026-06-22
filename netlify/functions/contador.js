@@ -1,18 +1,20 @@
-const { getStore } = require("@netlify/blobs");
+const fs = require("fs");
+const path = require("path");
 
 exports.handler = async (event) => {
-  const store = getStore("contador");
   const pagina = event.queryStringParameters?.pagina || "/";
-  const chave = "hits_" + pagina.toLowerCase();
+  const nome = pagina.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
+  const ARQUIVO = path.join("/tmp", "hits_" + nome);
 
   let count = 0;
   try {
-    const atual = await store.get(chave);
-    count = atual ? parseInt(atual, 10) : 0;
+    if (fs.existsSync(ARQUIVO)) {
+      count = parseInt(fs.readFileSync(ARQUIVO, "utf8").trim() || "0", 10);
+    }
   } catch (e) {}
 
   count++;
-  await store.set(chave, String(count));
+  fs.writeFileSync(ARQUIVO, String(count));
 
   return {
     statusCode: 200,
