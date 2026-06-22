@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 // DEFINA SUA SENHA MESTRA AQUI
-const SENHA_CORRETA = "admin123"; 
+const SENHA_CORRETA = "MakeMoney"; 
 
 exports.handler = async (event) => {
   const modo = event.queryStringParameters?.modo;
